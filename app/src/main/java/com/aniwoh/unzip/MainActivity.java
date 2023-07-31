@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> manageExternalStorageLauncher;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView pathview;
     private TextView logview;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,33 +48,40 @@ public class MainActivity extends AppCompatActivity {
 
         filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
+                // GetContent输入字符串，返回一个uri
                 uri -> {
                     if (uri != null) {
-                        // Read the selected file's path
-                        String filePath = getFilePathFromUri(uri);
-                        String despath=getPath(filePath);
-                        String filename=getname(filePath);
-                        // Set the file path to the TextView
+                        //读取到了文件
+                        String filePath = getFilePathFromUri(uri); //文件的真实路径
+                        String dirpath=getPath(filePath); //文件所在的目录
+                        String filename=getname(filePath); //文件名
+
                         pathview.setText(filePath);
-                        String finalpath=despath+filename;
-                        File dir = new File(finalpath); //以某路径实例化一个File对象
-                        if (!dir.exists()){ //如果不存在
+                        String despath=dirpath+filename; //文件保存的路径，默认与源文件同目录
+                        File dir = new File(despath); //以某路径实例化一个File对象
+                        if (!dir.exists()){ //如果目录不存在
                             boolean dr = dir.mkdirs(); //创建目录
                             System.out.println(dr);
                         }
                         try {
-                            UnzipUtility.main(filePath,finalpath);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            logview.setText("");
+                            logview.append(getTime()+" 开始解压缩"+'\n');
+                            UnzipUtility.main(filePath,despath);
+                            logview.append(getTime()+" 解压完成"+'\n');
+                        } catch (IOException ignored) {
                         }
-                        logview.setText("开始压缩");
                     }
                 });
     }
     public void onSelectFileButtonClick(View view) {
-        // Method to handle the button click event
-        // Launch the file picker
+        // 点击button后的操作，在xml文件里调用
         filePickerLauncher.launch("*/*");
+    }
+
+    public String getTime(){
+        LocalTime time = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return  time.format(formatter);
     }
 
     private String getFilePathFromUri(Uri uri) {
