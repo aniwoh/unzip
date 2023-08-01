@@ -10,8 +10,8 @@ android {
         applicationId "com.aniwoh.unzip"
         minSdk 30
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -21,7 +21,25 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        //打包后应用名称
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                def outputFile = output.outputFile
+                def fileName
+                if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                    if (variant.buildType.name.equals('release')) {//如果是release包
+                        fileName = "Unzip_release_v${defaultConfig.versionName}.apk"
+                    } else if (variant.buildType.name.equals('debug')) {//如果是debug包
+                        fileName = "Unzip_debug_v${defaultConfig.versionName}.apk"
+                    }
+                    outputFileName = fileName
+                }
+            }
+        }
     }
+
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
