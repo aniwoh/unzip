@@ -132,37 +132,69 @@ public class UnzipUtility {
         }
     }
 
-    public static void main(String zipFilePath, String destDir) throws IOException {
-        // 测试解压缩功能
-//        String zipFilePath = "C:\\Users\\aniwoh\\Desktop\\test.zip";
-//        String destDir = "C:\\Users\\aniwoh\\Desktop\\dest";
+    public static String getExtendname(String zipFilePath){
         String extendname;
         int lastIndex = zipFilePath.lastIndexOf(".");
         if (lastIndex != -1 && lastIndex < zipFilePath.length() - 1) {
-            extendname=zipFilePath.substring(lastIndex + 1);
+            extendname = zipFilePath.substring(lastIndex + 1);
         } else {
             extendname = "";
         }
+        return extendname;
+    }
+
+    public static String getLogmsg(String zipFilePath){
+        String extendname = getExtendname(zipFilePath);
+        String log;
         switch (extendname) {
             case "rar":
-                System.out.println("文件类型为rar,开始解压");
+                log="文件类型为rar,开始解压";
+                break;
+            case "zip":
+                log="文件类型为zip,开始解压";
+                break;
+            case "7z":
+                log="文件类型为7z,开始解压";
+                break;
+            case "":
+                log="文件拓展名不存在,流程中断";
+                break;
+            default:
+                log = "文件格式暂不支持";
+                break;
+        }
+        return log;
+    }
+
+    public static String unzip(String zipFilePath, String destDir) throws IOException {
+        String extendname = getExtendname(zipFilePath);
+        String log;
+        switch (extendname) {
+            case "rar":
+                log="文件类型为rar,开始解压";
+                System.out.println(log);
                 unzip_rar5(zipFilePath, destDir);
                 break;
             case "zip":
-                System.out.println("文件类型为zip,开始解压");
+                log="文件类型为zip,开始解压";
+                System.out.println(log);
                 unzip_zip(zipFilePath, destDir);
                 break;
             case "7z":
-                System.out.println("文件类型为7z,开始解压");
+                log="文件类型为7z,开始解压";
+                System.out.println(log);
                 unzip_7z(zipFilePath, destDir);
                 break;
             case "":
-                System.out.println("文件拓展名不存在,流程中断");
+                log="文件拓展名不存在,流程中断";
+                System.out.println(log);
                 break;
             default:
-                System.out.println("文件格式暂不支持");
+                log = "文件格式暂不支持";
+                System.out.println(log);
                 break;
         }
         System.out.println(extendname);
+        return log;
     }
 }

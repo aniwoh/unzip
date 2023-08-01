@@ -53,22 +53,27 @@ public class MainActivity extends AppCompatActivity {
                     if (uri != null) {
                         //读取到了文件
                         String filePath = getFilePathFromUri(uri); //文件的真实路径
-                        String dirpath=getPath(filePath); //文件所在的目录
-                        String filename=getname(filePath); //文件名
+                        if (filePath !=null){
+                            String dirpath=getPath(filePath); //文件所在的目录
+                            String filename=getname(filePath); //文件名
 
-                        pathview.setText(filePath);
-                        String despath=dirpath+filename; //文件保存的路径，默认与源文件同目录
-                        File dir = new File(despath); //以某路径实例化一个File对象
-                        if (!dir.exists()){ //如果目录不存在
-                            boolean dr = dir.mkdirs(); //创建目录
-                            System.out.println(dr);
-                        }
-                        try {
-                            logview.setText("");
-                            logview.append(getTime()+" 开始解压缩"+'\n');
-                            UnzipUtility.main(filePath,despath);
-                            logview.append(getTime()+" 解压完成"+'\n');
-                        } catch (IOException ignored) {
+                            pathview.setText(filePath);
+                            String despath=dirpath+filename; //文件保存的路径，默认与源文件同目录
+                            File dir = new File(despath); //以某路径实例化一个File对象
+                            if (!dir.exists()){ //如果目录不存在
+                                boolean dr = dir.mkdirs(); //创建目录
+                                System.out.println(dr);
+                            }
+                            try {
+                                logview.setText("");
+                                String msg=UnzipUtility.getLogmsg(filePath);
+                                logview.append(getTime()+' '+msg+'\n');
+                                UnzipUtility.unzip(filePath,despath);
+                                logview.append(getTime()+" 解压完成"+'\n');
+                            } catch (IOException ignored) {
+                            }
+                        }else {
+                            pathview.setText("该方式为SAF，暂不支持");
                         }
                     }
                 });
@@ -87,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
     private String getFilePathFromUri(Uri uri) {
         String filePath;
         if (DocumentsContract.isDocumentUri(this, uri)) {
-            // SAF file picker result
 //            DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
 //            filePath = "新方法："+documentFile.getUri().getPath();
 //            filePath = documentFile.getName();
-            filePath="该方式为SAF，暂不支持";
+            filePath=null;
+//            String log="该方式为SAF，暂不支持";
         } else {
             // For older file pickers
 //            filePath = "老方法："+uri.getPath()+getFileNameFromUri(uri);
